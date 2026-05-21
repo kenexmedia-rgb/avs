@@ -977,6 +977,16 @@
 </head>
 <body>
   <script>
+    (() => {
+      try {
+        const savedTheme = window.localStorage.getItem("acaios-theme");
+        const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+        document.documentElement.dataset.theme = savedTheme || (prefersLight ? "light" : "dark");
+      } catch (error) {
+        document.documentElement.dataset.theme = "dark";
+      }
+    })();
+
     window.ACAI_AI_ENDPOINT = window.ACAI_AI_ENDPOINT || "";
   </script>
   <main class="phone-frame" aria-label="AcaiOS black canvas app">
@@ -989,6 +999,10 @@
         <div class="brand-switcher header-glyph" aria-hidden="true">
           <span class="brand-word">acaios</span>
         </div>
+
+        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to light mode" aria-pressed="false">
+          <span class="theme-icon" aria-hidden="true"></span>
+        </button>
       </header>
 
       <section class="content-zone" aria-live="polite">
@@ -1064,7 +1078,29 @@
   const askInput = document.getElementById("askInput");
   const inputBar = askForm;
   const quickButton = document.getElementById("quickButton");
+  const themeToggle = document.getElementById("themeToggle");
   const AI_ENDPOINT = window.ACAI_AI_ENDPOINT || "";
+  const THEME_STORAGE_KEY = "acaios-theme";
+
+  function applyTheme(theme) {
+    const nextTheme = theme === "light" ? "light" : "dark";
+    document.documentElement.dataset.theme = nextTheme;
+
+    if (themeToggle) {
+      const isLight = nextTheme === "light";
+      themeToggle.setAttribute("aria-pressed", String(isLight));
+      themeToggle.setAttribute("aria-label", isLight ? "Switch to dark mode" : "Switch to light mode");
+      themeToggle.title = isLight ? "Dark mode" : "Light mode";
+    }
+  }
+
+  function saveTheme(theme) {
+    try {
+      window.localStorage.setItem(THEME_STORAGE_KEY, theme);
+    } catch (error) {
+      return;
+    }
+  }
 
   function escapeHtml(value) {
     return String(value).replace(/[&<>"']/g, char => ({
@@ -1468,6 +1504,13 @@
 
   quickButton.addEventListener("click", () => askInput.focus());
 
+  themeToggle.addEventListener("click", () => {
+    const nextTheme = document.documentElement.dataset.theme === "light" ? "dark" : "light";
+    applyTheme(nextTheme);
+    saveTheme(nextTheme);
+  });
+
+  applyTheme(document.documentElement.dataset.theme);
   contentStage.innerHTML = renderWelcome();
 </script>
 </body>
