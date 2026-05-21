@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>AcaiOS RC3 - Black Canvas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #000;
+    --border: rgba(255, 255, 255, 0.1);
+    --text: rgba(255, 255, 255, 0.94);
+    --muted: rgba(255, 255, 255, 0.58);
+    --faint: rgba(255, 255, 255, 0.34);
+    --blue: #2f7dff;
+    --green: #39d98a;
+    --radius: 8px;
+    --font: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html,
+  body {
+    min-height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    overflow: hidden;
+  }
+
+  body {
+    display: grid;
+    place-items: center;
+  }
+
+  button,
+  input {
+    font: inherit;
+  }
+
+  button {
+    color: inherit;
+  }
+
+  .phone-frame {
+    width: min(100vw, 430px);
+    height: 100dvh;
+    min-height: 680px;
+    max-height: 932px;
+    position: relative;
+    overflow: hidden;
+    background: #000;
+    isolation: isolate;
+  }
+
+  .phone-frame::before {
+    content: "";
+    position: absolute;
+    inset: auto -22% -16% -22%;
+    height: 58%;
+    background:
+      radial-gradient(circle at 14% 82%, rgba(61, 30, 135, 0.72), transparent 43%),
+      radial-gradient(circle at 88% 76%, rgba(89, 27, 149, 0.7), transparent 43%),
+      linear-gradient(180deg, transparent 0%, rgba(27, 12, 56, 0.48) 38%, rgba(76, 34, 155, 0.8) 100%);
+    filter: blur(24px);
+    opacity: 0.98;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .phone-frame::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgba(0, 0, 0, 0.08) 0%, rgba(0, 0, 0, 0.4) 72%, rgba(0, 0, 0, 0.12) 100%),
+      radial-gradient(circle at 50% 40%, rgba(255, 255, 255, 0.025), transparent 48%);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .app-shell {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+  }
+
+  .app-header {
+    height: 126px;
+    padding: 0;
+    position: relative;
+    pointer-events: none;
+  }
+
+  .icon-button {
+    width: 44px;
+    height: 44px;
+    border: 0;
+    background: transparent;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    pointer-events: auto;
+    position: relative;
+  }
+
+  .header-glyph {
+    cursor: default;
+    pointer-events: none;
+  }
+
+  .app-header > .icon-button {
+    position: absolute;
+    left: 12px;
+    top: calc(env(safe-area-inset-top) + 30px);
+  }
+
+  .menu-lines {
+    width: 31px;
+    display: grid;
+    gap: 9px;
+  }
+
+  .menu-lines span {
+    height: 3px;
+    border-radius: 99px;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.22);
+  }
+
+  .signal-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--blue);
+    box-shadow: 0 0 12px rgba(47, 125, 255, 0.85);
+    position: absolute;
+  }
+
+  .brand-switcher {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    border: 0;
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+    pointer-events: auto;
+    position: relative;
+  }
+
+  .brand-switcher.header-glyph {
+    pointer-events: none;
+    cursor: default;
+    position: absolute;
+    left: 70px;
+    top: calc(env(safe-area-inset-top) + 30px);
+  }
+
+  .brand-word {
+    font-size: 47px;
+    font-weight: 400;
+    line-height: 0.9;
+    letter-spacing: 0;
+  }
+
+  .content-zone {
+    position: relative;
+    min-height: 0;
+    padding: 0 26px;
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+  }
+
+  .content-stage {
+    width: 100%;
+    max-height: 100%;
+    overflow: auto;
+    scrollbar-width: none;
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 300ms ease, transform 300ms ease;
+    padding: 10px 0 22px;
+  }
+
+  .content-stage::-webkit-scrollbar {
+    display: none;
+  }
+
+  .content-stage.is-fading {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  .welcome-view {
+    min-height: 430px;
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    gap: 28px;
+    text-align: center;
+    transform: translate(-14px, -48px);
+  }
+
+  .berry-mark {
+    width: 122px;
+    height: 122px;
+    position: relative;
+    filter: drop-shadow(0 20px 36px rgba(85, 22, 168, 0.32));
+    transform: scale(0.75);
+    transform-origin: center bottom;
+    margin-bottom: -16px;
+  }
+
+  .berry-body {
+    position: absolute;
+    left: 13px;
+    bottom: 4px;
+    width: 74px;
+    height: 74px;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 35% 26%, rgba(255, 255, 255, 0.24), transparent 14%),
+      radial-gradient(circle at 64% 76%, #17004a 0%, #3b087d 54%, #6d28c4 100%);
+  }
+
+  .berry-leaf {
+    position: absolute;
+    right: 5px;
+    top: 12px;
+    width: 75px;
+    height: 44px;
+    background: linear-gradient(135deg, #3a0c78 0%, #7d31c7 100%);
+    border-radius: 80% 0 80% 0;
+    transform: rotate(-35deg);
+    transform-origin: left bottom;
+  }
+
+  .berry-stem {
+    position: absolute;
+    left: 69px;
+    top: 50px;
+    width: 55px;
+    height: 4px;
+    background: #fff;
+    border-radius: 99px;
+    transform: rotate(-43deg);
+  }
+
+  .berry-star {
+    position: absolute;
+    left: 39px;
+    top: 60px;
+    width: 28px;
+    height: 28px;
+    background: #fff;
+    clip-path: polygon(50% 0%, 61% 28%, 91% 15%, 74% 45%, 100% 62%, 67% 68%, 68% 100%, 50% 75%, 31% 100%, 33% 68%, 0 62%, 26% 45%, 9% 15%, 39% 28%);
+  }
+
+  .welcome-title {
+    max-width: 350px;
+    font-size: 35px;
+    font-weight: 300;
+    line-height: 1.35;
+    letter-spacing: 0;
+    color: rgba(255, 255, 255, 0.91);
+    text-shadow: 0 0 24px rgba(255, 255, 255, 0.12);
+  }
+
+  .grid {
+    display: grid;
+    gap: 10px;
+  }
+
+  .two-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .card {
+    border: 1px solid rgba(255, 255, 255, 0.115);
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.052), rgba(255, 255, 255, 0.022)),
+      rgba(0, 0, 0, 0.08);
+    border-radius: var(--radius);
+    padding: 15px;
+    box-shadow:
+      0 18px 40px rgba(0, 0, 0, 0.18),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .result-item {
+    opacity: 0;
+    transform: translateY(12px) scale(0.965);
+    filter: blur(4px);
+    animation: resultPop 300ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation-delay: calc(300ms + (var(--stagger-index, 0) * 70ms));
+    will-change: opacity, transform, filter;
+  }
+
+  .result-asked,
+  .result-ai-copy {
+    opacity: 0;
+    transform: translateY(10px) scale(0.975);
+    filter: blur(4px);
+    animation: resultPop 300ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    will-change: opacity, transform, filter;
+  }
+
+  .result-asked {
+    animation-delay: 0ms;
+  }
+
+  .result-ai-copy {
+    animation-delay: 150ms;
+  }
+
+  @keyframes resultPop {
+    0% {
+      opacity: 0;
+      transform: translateY(12px) scale(0.965);
+      filter: blur(4px);
+    }
+
+    68% {
+      opacity: 1;
+      transform: translateY(-2px) scale(1.012);
+      filter: blur(0);
+    }
+
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      filter: blur(0);
+    }
+  }
+
+  .card-top {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 12px;
+  }
+
+  .card-title {
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.25;
+  }
+
+  .card-subtitle {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.35;
+    margin-top: 4px;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    height: 24px;
+    padding: 0 9px;
+    border-radius: 99px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.045);
+    color: rgba(255, 255, 255, 0.68);
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .pill.hot {
+    color: #ffd28b;
+    background: rgba(245, 184, 75, 0.12);
+    border-color: rgba(245, 184, 75, 0.22);
+  }
+
+  .pill.green {
+    color: #9cf2c4;
+    background: rgba(57, 217, 138, 0.12);
+    border-color: rgba(57, 217, 138, 0.22);
+  }
+
+  .pill.blue {
+    color: #9fc3ff;
+    background: rgba(47, 125, 255, 0.14);
+    border-color: rgba(47, 125, 255, 0.24);
+  }
+
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .stat {
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    background: rgba(255, 255, 255, 0.032);
+    padding: 10px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  .stat-value {
+    font-size: 20px;
+    font-weight: 650;
+    line-height: 1;
+  }
+
+  .stat-label {
+    margin-top: 6px;
+    color: var(--faint);
+    font-size: 11px;
+  }
+
+  .row-list {
+    display: grid;
+    gap: 8px;
+  }
+
+  .list-row {
+    min-height: 64px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.105);
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.048), rgba(255, 255, 255, 0.018)),
+      rgba(0, 0, 0, 0.07);
+    border-radius: var(--radius);
+    padding: 12px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.045);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .avatar-dot {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.06));
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .row-title {
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .row-subtitle {
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 3px;
+    line-height: 1.32;
+  }
+
+  .task-check {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255, 255, 255, 0.34);
+  }
+
+  .task-check.done {
+    display: grid;
+    place-items: center;
+    border-color: rgba(57, 217, 138, 0.7);
+    background: rgba(57, 217, 138, 0.13);
+  }
+
+  .task-check.done::before {
+    content: "";
+    width: 8px;
+    height: 4px;
+    border-left: 2px solid #9cf2c4;
+    border-bottom: 2px solid #9cf2c4;
+    transform: rotate(-45deg);
+  }
+
+  .agent-card {
+    display: grid;
+    gap: 12px;
+  }
+
+  .agent-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.55), transparent 13%),
+      linear-gradient(135deg, #2f7dff 0%, #7a35d8 100%);
+    box-shadow: 0 0 24px rgba(80, 47, 255, 0.26);
+  }
+
+  .company-hero {
+    display: grid;
+    gap: 12px;
+    padding: 18px;
+    min-height: 148px;
+    border: 1px solid rgba(47, 125, 255, 0.18);
+    background:
+      linear-gradient(145deg, rgba(47, 125, 255, 0.105), rgba(122, 53, 216, 0.045)),
+      rgba(0, 0, 0, 0.055);
+    border-radius: var(--radius);
+    box-shadow:
+      0 18px 44px rgba(0, 0, 0, 0.18),
+      inset 0 1px 0 rgba(255, 255, 255, 0.055);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .company-name {
+    font-size: 34px;
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  .approval-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  .action-button {
+    height: 38px;
+    flex: 1;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.045);
+    color: rgba(255, 255, 255, 0.86);
+    cursor: pointer;
+  }
+
+  .action-button.primary {
+    background: rgba(47, 125, 255, 0.95);
+    border-color: rgba(47, 125, 255, 0.95);
+    color: #fff;
+  }
+
+  .conversation-shell {
+    width: 100%;
+    min-height: 100%;
+    display: grid;
+    align-content: start;
+    gap: 30px;
+    padding: 10px 0 28px;
+  }
+
+  .conversation-turn {
+    display: grid;
+    gap: 15px;
+  }
+
+  .message-bubble {
+    max-width: 84%;
+    border-radius: 24px;
+    padding: 15px 18px;
+    border: 1px solid rgba(255, 255, 255, 0.105);
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.035)),
+      rgba(0, 0, 0, 0.12);
+    box-shadow:
+      0 18px 38px rgba(0, 0, 0, 0.22),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .user-bubble {
+    justify-self: end;
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 16px;
+    line-height: 1.45;
+  }
+
+  .ai-response-block {
+    display: grid;
+    gap: 8px;
+    padding: 0 2px;
+  }
+
+  .ai-label {
+    color: var(--blue);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .ai-response-text {
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 18px;
+    line-height: 1.52;
+  }
+
+  .action-card-grid {
+    display: grid;
+    gap: 10px;
+  }
+
+  .ai-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--faint);
+    font-size: 12px;
+  }
+
+  .ai-status::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 14px rgba(57, 217, 138, 0.6);
+  }
+
+  .input-bar.is-thinking {
+    border-color: rgba(47, 125, 255, 0.22);
+  }
+
+  .input-bar.is-thinking .send-button {
+    animation: thinkingPulse 900ms ease-in-out infinite alternate;
+  }
+
+  @keyframes thinkingPulse {
+    from {
+      box-shadow: 0 12px 34px rgba(94, 31, 168, 0.42);
+      transform: scale(1);
+    }
+
+    to {
+      box-shadow: 0 12px 44px rgba(47, 125, 255, 0.52);
+      transform: scale(1.035);
+    }
+  }
+
+  .input-dock {
+    padding: 16px 22px calc(env(safe-area-inset-bottom) + 14px);
+    position: relative;
+    z-index: 4;
+  }
+
+  .input-bar {
+    min-height: 100px;
+    border-radius: 50px;
+    display: grid;
+    grid-template-columns: 56px 1fr 44px 58px;
+    align-items: center;
+    gap: 10px;
+    padding: 0 12px 0 20px;
+    background:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.055)),
+      rgba(20, 20, 20, 0.86);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow:
+      0 28px 70px rgba(0, 0, 0, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(20px);
+  }
+
+  .plus-button {
+    width: 42px;
+    height: 42px;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .plus-button::before,
+  .plus-button::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 34px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.92);
+    border-radius: 99px;
+    transform: translate(-50%, -50%);
+  }
+
+  .plus-button::after {
+    transform: translate(-50%, -50%) rotate(90deg);
+  }
+
+  .input-dot {
+    left: 42px;
+    top: 26px;
+  }
+
+  .ask-input {
+    min-width: 0;
+    height: 52px;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 22px;
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+
+  .ask-input::placeholder {
+    color: rgba(255, 255, 255, 0.42);
+  }
+
+  .mic-button,
+  .send-button {
+    border: 0;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+  }
+
+  .mic-button {
+    width: 42px;
+    height: 42px;
+    background: transparent;
+  }
+
+  .send-button {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 25%, #6d31c7, #3f137c 72%);
+    box-shadow: 0 12px 34px rgba(94, 31, 168, 0.42);
+  }
+
+  .voice-bars {
+    width: 24px;
+    height: 31px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+  }
+
+  .voice-bars span {
+    width: 3px;
+    border-radius: 99px;
+    background: #fff;
+  }
+
+  .voice-bars span:nth-child(1) { height: 18px; }
+  .voice-bars span:nth-child(2) { height: 28px; }
+  .voice-bars span:nth-child(3) { height: 18px; }
+
+  @media (max-width: 374px) {
+    .phone-frame {
+      min-height: 620px;
+    }
+
+    .app-header {
+      padding-left: 22px;
+      padding-right: 22px;
+      height: 110px;
+    }
+
+    .brand-word {
+      font-size: 38px;
+    }
+
+    .content-zone {
+      padding-left: 18px;
+      padding-right: 18px;
+    }
+
+    .welcome-title {
+      font-size: 32px;
+    }
+
+    .input-dock {
+      padding-left: 14px;
+      padding-right: 14px;
+    }
+
+    .input-bar {
+      min-height: 82px;
+      grid-template-columns: 48px 1fr 38px 52px;
+      padding-left: 16px;
+    }
+
+    .ask-input {
+      font-size: 20px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .result-item,
+    .result-asked,
+    .result-ai-copy {
+      opacity: 1;
+      transform: none;
+      filter: none;
+      animation: none;
+    }
+  }
+</style>
+</head>
+<body>
+  <script>
+    window.ACAI_AI_ENDPOINT = window.ACAI_AI_ENDPOINT || "";
+  </script>
+  <main class="phone-frame" aria-label="AcaiOS black canvas app">
+    <section class="app-shell">
+      <header class="app-header">
+        <div class="icon-button header-glyph" aria-hidden="true">
+          <span class="menu-lines" aria-hidden="true"><span></span><span></span></span>
+        </div>
+
+        <div class="brand-switcher header-glyph" aria-hidden="true">
+          <span class="brand-word">acaios</span>
+        </div>
+      </header>
+
+      <section class="content-zone" aria-live="polite">
+        <div class="content-stage" id="contentStage"></div>
+      </section>
+
+      <footer class="input-dock">
+        <form class="input-bar" id="askForm">
+          <button class="plus-button" type="button" id="quickButton" aria-label="Focus input">
+            <span class="signal-dot input-dot" aria-hidden="true"></span>
+          </button>
+          <input class="ask-input" id="askInput" type="text" autocomplete="off" placeholder="Ask" aria-label="Ask AcaiOS">
+          <button class="mic-button" type="button" aria-label="Voice input">
+            <svg width="28" height="34" viewBox="0 0 28 34" fill="none" aria-hidden="true">
+              <path d="M14 3.5C11.8 3.5 10 5.3 10 7.5V16.5C10 18.7 11.8 20.5 14 20.5C16.2 20.5 18 18.7 18 16.5V7.5C18 5.3 16.2 3.5 14 3.5Z" stroke="white" stroke-width="2.4" stroke-linecap="round"/>
+              <path d="M5.5 15.5C5.5 20.2 9.3 24 14 24C18.7 24 22.5 20.2 22.5 15.5" stroke="white" stroke-width="2.4" stroke-linecap="round"/>
+              <path d="M14 24V30" stroke="white" stroke-width="2.4" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <button class="send-button" type="submit" aria-label="Ask">
+            <span class="voice-bars" aria-hidden="true"><span></span><span></span><span></span></span>
+          </button>
+        </form>
+      </footer>
+    </section>
+  </main>
+
+<script>
+  const state = {
+    currentView: "welcome",
+    isTransitioning: false,
+    conversation: []
+  };
+
+  const data = {
+    leads: [
+      { name: "Nora Patel", company: "DKR Logistics", status: "Hot", detail: "$148K fleet automation opportunity", score: "92" },
+      { name: "Marcus Lee", company: "Brightline Supply", status: "New", detail: "Asked for pricing on AI dispatch", score: "84" },
+      { name: "Elena Ruiz", company: "Northstar Dental", status: "Replied", detail: "Wants Thursday demo window", score: "77" }
+    ],
+    contacts: [
+      { name: "Tony Terry", role: "Owner", company: "AcaiOS" },
+      { name: "Dana Kim", role: "Ops Director", company: "DKR Logistics" },
+      { name: "Wes Miller", role: "Finance", company: "Brightline Supply" },
+      { name: "Ari Shaw", role: "Partner", company: "Northstar Dental" }
+    ],
+    agents: [
+      { name: "Lead Scout", detail: "Finds, ranks, and enriches new leads.", status: "Live" },
+      { name: "Follow-up Agent", detail: "Drafts replies and keeps opportunities warm.", status: "Live" },
+      { name: "Approval Agent", detail: "Queues anything that needs Tony's sign-off.", status: "Ready" },
+      { name: "Ops Analyst", detail: "Turns company activity into snapshots.", status: "Live" }
+    ],
+    tasks: [
+      { title: "Approve DKR follow-up copy", detail: "Due today at 3:00 PM", done: false, tag: "Approval" },
+      { title: "Review new lead scoring rules", detail: "18 leads affected", done: false, tag: "Leads" },
+      { title: "Send Brightline demo recap", detail: "Draft prepared by agent", done: true, tag: "Done" },
+      { title: "Prep Thursday pipeline view", detail: "Owner: AcaiOS", done: false, tag: "Ops" }
+    ],
+    approvals: [
+      { title: "DKR outreach sequence", detail: "3-email sequence with pricing anchor.", type: "Send" },
+      { title: "Northstar CRM import", detail: "248 contacts ready to sync.", type: "Sync" },
+      { title: "Agent budget increase", detail: "Lead Scout requests 400 more searches.", type: "Approve" }
+    ]
+  };
+
+  const views = {
+    welcome: renderWelcome,
+    conversation: renderConversationSurface
+  };
+
+  const contentStage = document.getElementById("contentStage");
+  const askForm = document.getElementById("askForm");
+  const askInput = document.getElementById("askInput");
+  const inputBar = askForm;
+  const quickButton = document.getElementById("quickButton");
+  const AI_ENDPOINT = window.ACAI_AI_ENDPOINT || "";
+
+  function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, char => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#039;"
+    }[char]));
+  }
+
+  function setCurrentView(nextView, options = {}) {
+    if (!views[nextView] || state.isTransitioning) return;
+    if (nextView === state.currentView && !options.force) {
+      return;
+    }
+
+    state.isTransitioning = true;
+    contentStage.classList.add("is-fading");
+
+    window.setTimeout(() => {
+      state.currentView = nextView;
+      contentStage.innerHTML = views[nextView]();
+      contentStage.scrollTop = 0;
+      window.requestAnimationFrame(() => {
+        contentStage.classList.remove("is-fading");
+        window.setTimeout(() => {
+          state.isTransitioning = false;
+        }, 310);
+      });
+    }, 300);
+  }
+
+  function initials(name) {
+    return name.split(" ").map(part => part[0]).join("").slice(0, 2).toUpperCase();
+  }
+
+  function renderWelcome() {
+    return `
+      <section class="welcome-view" data-view-name="welcome">
+        <div class="berry-mark" aria-hidden="true">
+          <span class="berry-leaf"></span>
+          <span class="berry-stem"></span>
+          <span class="berry-body"></span>
+          <span class="berry-star"></span>
+        </div>
+        <h1 class="welcome-title">Hi Tony, what's on your mind?</h1>
+      </section>
+    `;
+  }
+
+  function renderConversationSurface() {
+    return `
+      <section class="conversation-shell" data-view-name="conversation">
+        ${state.conversation.map((turn, index) => renderConversationTurn(turn, index === state.conversation.length - 1)).join("")}
+      </section>
+    `;
+  }
+
+  function renderConversationTurn(turn, isNew = true) {
+    const sourceLabel = turn.source === "remote" ? "Live AI" : turn.source === "provider" ? "Provider" : "Local AI";
+    const newClass = isNew ? " is-new" : "";
+    return `
+      <article class="conversation-turn${newClass}">
+        <div class="message-bubble user-bubble result-asked">${escapeHtml(turn.query)}</div>
+        <div class="ai-response-block result-ai-copy">
+          <div class="ai-label">Acai</div>
+          <p class="ai-response-text">${escapeHtml(turn.response)}</p>
+        </div>
+        <div class="action-card-grid">
+          ${renderResultBoxes(turn.intent)}
+        </div>
+        <div class="ai-status">AI layer ${escapeHtml(turn.status)} - ${sourceLabel}</div>
+      </article>
+    `;
+  }
+
+  function resultTitleForIntent(intent) {
+    const titles = {
+      leads: "Leads",
+      contacts: "Contacts",
+      agents: "AI agents",
+      tasks: "Tasks",
+      company: "Company",
+      approvals: "Approvals",
+      response: "Response"
+    };
+
+    return titles[intent] || "Response";
+  }
+
+  function renderResultBoxes(intent) {
+    if (intent === "leads") return renderLeadsBoxes();
+    if (intent === "contacts") return renderContactsBoxes();
+    if (intent === "agents") return renderAgentBoxes();
+    if (intent === "tasks") return renderTaskBoxes();
+    if (intent === "company") return renderCompanyBoxes();
+    if (intent === "approvals") return renderApprovalBoxes();
+
+    return `
+      <article class="card result-item" style="--stagger-index: 0">
+        <div class="card-title">Available context</div>
+        <p class="card-subtitle">Ask for leads, contacts, AI agents, tasks, company, or approvals and AcaiOS will pull the relevant boxes onto this canvas.</p>
+      </article>
+    `;
+  }
+
+  function renderLeadsBoxes() {
+    return `
+      <div class="grid">
+        <div class="row-list">
+          ${data.leads.map((lead, index) => `
+            <article class="list-row result-item" style="--stagger-index: ${index}">
+              <div class="avatar-dot">${initials(lead.name)}</div>
+              <div>
+                <div class="row-title">${lead.name}</div>
+                <div class="row-subtitle">${lead.company} - ${lead.detail}</div>
+              </div>
+              <span class="pill ${lead.status === "Hot" ? "hot" : lead.status === "Replied" ? "green" : "blue"}">${lead.status} ${lead.score}</span>
+            </article>
+          `).join("")}
+        </div>
+        <div class="card result-item" style="--stagger-index: ${data.leads.length}">
+          <div class="card-title">Lead pulse</div>
+          <div class="card-subtitle">AcaiOS found 11 fresh buying signals since this morning.</div>
+          <div class="stat-row">
+            <div class="stat"><div class="stat-value">42</div><div class="stat-label">Open</div></div>
+            <div class="stat"><div class="stat-value">18</div><div class="stat-label">Hot</div></div>
+            <div class="stat"><div class="stat-value">$1.2M</div><div class="stat-label">Pipeline</div></div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderContactsBoxes() {
+    return `
+      <div class="row-list">
+        ${data.contacts.map((contact, index) => `
+          <article class="list-row result-item" style="--stagger-index: ${index}">
+            <div class="avatar-dot">${initials(contact.name)}</div>
+            <div>
+              <div class="row-title">${contact.name}</div>
+              <div class="row-subtitle">${contact.role} - ${contact.company}</div>
+            </div>
+            <span class="pill">Open</span>
+          </article>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  function renderAgentBoxes() {
+    return `
+      <div class="grid two-grid">
+        ${data.agents.map((agent, index) => `
+          <article class="card agent-card result-item" style="--stagger-index: ${index}">
+            <div class="agent-icon" aria-hidden="true"></div>
+            <div>
+              <div class="card-title">${agent.name}</div>
+              <div class="card-subtitle">${agent.detail}</div>
+            </div>
+            <span class="pill ${agent.status === "Live" ? "green" : "blue"}">${agent.status}</span>
+          </article>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  function renderTaskBoxes() {
+    return `
+      <div class="row-list">
+        ${data.tasks.map((task, index) => `
+          <article class="list-row result-item" style="--stagger-index: ${index}">
+            <div class="task-check ${task.done ? "done" : ""}" aria-hidden="true"></div>
+            <div>
+              <div class="row-title">${task.title}</div>
+              <div class="row-subtitle">${task.detail}</div>
+            </div>
+            <span class="pill ${task.done ? "green" : "blue"}">${task.tag}</span>
+          </article>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  function renderCompanyBoxes() {
+    return `
+      <div class="grid">
+        <article class="company-hero result-item" style="--stagger-index: 0">
+          <span class="pill green">Live account</span>
+          <div class="company-name">DKR Logistics</div>
+          <p class="card-subtitle">High-intent account with active interest in AI dispatch, lead routing, and approval automation.</p>
+        </article>
+        <div class="stat-row result-item" style="--stagger-index: 1">
+          <div class="stat"><div class="stat-value">87</div><div class="stat-label">Health</div></div>
+          <div class="stat"><div class="stat-value">$148K</div><div class="stat-label">Value</div></div>
+          <div class="stat"><div class="stat-value">3</div><div class="stat-label">Next steps</div></div>
+        </div>
+        <article class="card result-item" style="--stagger-index: 2">
+          <div class="card-title">Acai readout</div>
+          <p class="card-subtitle">Dana opened the pricing note twice and forwarded the demo recap. Best next move: concise follow-up with two implementation paths.</p>
+        </article>
+      </div>
+    `;
+  }
+
+  function renderApprovalBoxes() {
+    return `
+      <div class="grid">
+        ${data.approvals.map((item, index) => `
+          <article class="card result-item" style="--stagger-index: ${index}">
+            <div class="card-top">
+              <div>
+                <div class="card-title">${item.title}</div>
+                <div class="card-subtitle">${item.detail}</div>
+              </div>
+              <span class="pill hot">${item.type}</span>
+            </div>
+            <div class="approval-actions">
+              <button class="action-button" type="button">Hold</button>
+              <button class="action-button primary" type="button">Approve</button>
+            </div>
+          </article>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  function buildResponseCopy(query) {
+    const safeQuery = escapeHtml(query || "");
+    if (!safeQuery.trim()) {
+      return "I am here on the black canvas. Ask for leads, contacts, agents, tasks, company, or approvals and I will pull the right cards into this conversation.";
+    }
+
+    return `I can work from "${safeQuery}" and keep the answer in this conversation. When the live AI agent connects, completed work and retrieved context can appear here as transparent action cards.`;
+  }
+
+  function makeAiContext() {
+    return {
+      user: "Tony",
+      currentView: state.currentView,
+      availableViews: Object.keys(views),
+      availableIntents: ["leads", "contacts", "agents", "tasks", "company", "approvals", "response"],
+      summaries: {
+        leads: data.leads.map(lead => `${lead.name} at ${lead.company}: ${lead.detail}`),
+        contacts: data.contacts.map(contact => `${contact.name}, ${contact.role} at ${contact.company}`),
+        agents: data.agents.map(agent => `${agent.name}: ${agent.detail}`),
+        tasks: data.tasks.map(task => `${task.title}: ${task.detail}`),
+        approvals: data.approvals.map(item => `${item.title}: ${item.detail}`),
+        company: "DKR Logistics account snapshot with health, value, and next steps."
+      }
+    };
+  }
+
+  function normalizeAiDecision(decision, query) {
+    const fallback = localAiDecision(query);
+    const knownIntents = ["leads", "contacts", "agents", "tasks", "company", "approvals", "response"];
+    const requestedView = decision?.view;
+    const requestedIntent = decision?.intent || (knownIntents.includes(requestedView) ? requestedView : "");
+    const normalizedView = requestedView === "welcome" ? "welcome" : "conversation";
+
+    return {
+      view: normalizedView,
+      intent: requestedIntent || fallback.intent,
+      response: typeof decision?.response === "string" && decision.response.trim()
+        ? decision.response.trim()
+        : fallback.response,
+      source: decision?.source || fallback.source,
+      status: decision?.status || fallback.status
+    };
+  }
+
+  async function runAiLayer(query) {
+    const context = makeAiContext();
+
+    if (window.AcaiAIProvider && typeof window.AcaiAIProvider.resolve === "function") {
+      const providerDecision = await window.AcaiAIProvider.resolve({ query, context });
+      return normalizeAiDecision({ ...providerDecision, source: "provider", status: "ready" }, query);
+    }
+
+    if (AI_ENDPOINT) {
+      const response = await fetch(AI_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query, context })
+      });
+
+      if (!response.ok) {
+        throw new Error(`AI endpoint returned ${response.status}`);
+      }
+
+      const remoteDecision = await response.json();
+      return normalizeAiDecision({ ...remoteDecision, source: "remote", status: "ready" }, query);
+    }
+
+    await new Promise(resolve => window.setTimeout(resolve, 220));
+    return localAiDecision(query);
+  }
+
+  function localAiDecision(rawQuery) {
+    const query = rawQuery.toLowerCase();
+    const checks = [
+      ["leads", ["lead", "leads", "pipeline", "prospect", "prospects", "opportunity", "opportunities"]],
+      ["contacts", ["contact", "contacts"]],
+      ["agents", ["agent", "agents", "ai agent", "ai agents"]],
+      ["tasks", ["task", "tasks", "todo", "todos", "to do", "to-do"]],
+      ["company", ["company", "companies", "dkr", "account", "accounts", "snapshot", "snapshots"]],
+      ["approvals", ["approval", "approvals", "approve", "sign off", "sign-off"]],
+      ["welcome", ["home", "welcome", "start", "reset"]]
+    ];
+
+    const match = checks.find(([, terms]) => terms.some(term => hasIntentTerm(query, term)));
+    const intent = match ? match[0] : "response";
+    const view = intent === "welcome" ? "welcome" : "conversation";
+    const response = intent === "response"
+      ? buildResponseCopy(rawQuery)
+      : `I found the ${resultTitleForIntent(intent).toLowerCase()} context. Bringing it onto the canvas now.`;
+
+    return {
+      view,
+      intent,
+      response,
+      source: "local",
+      status: "ready"
+    };
+  }
+
+  function hasIntentTerm(query, term) {
+    const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+");
+    return new RegExp(`(^|[^a-z0-9])${escaped}([^a-z0-9]|$)`, "i").test(query);
+  }
+
+  function setThinking(isThinking) {
+    inputBar.classList.toggle("is-thinking", isThinking);
+    askInput.disabled = isThinking;
+    askInput.placeholder = isThinking ? "Thinking" : "Ask";
+  }
+
+  function appendConversationTurn(turn) {
+    state.conversation.push(turn);
+
+    if (turn.view === "welcome") {
+      state.conversation = [];
+      setCurrentView("welcome", { force: true });
+      return;
+    }
+
+    if (state.currentView !== "conversation") {
+      setCurrentView("conversation", { force: true });
+      return;
+    }
+
+    const shell = contentStage.querySelector(".conversation-shell");
+    if (!shell) {
+      contentStage.innerHTML = renderConversationSurface();
+    } else {
+      shell.insertAdjacentHTML("beforeend", renderConversationTurn(turn, true));
+    }
+
+    window.requestAnimationFrame(() => {
+      contentStage.scrollTo({ top: contentStage.scrollHeight, behavior: "smooth" });
+    });
+  }
+
+  askForm.addEventListener("submit", async event => {
+    event.preventDefault();
+    const query = askInput.value.trim();
+    if (!query) return;
+
+    askInput.value = "";
+    setThinking(true);
+
+    try {
+      const decision = await runAiLayer(query);
+      appendConversationTurn({
+        id: Date.now(),
+        query,
+        response: decision.response,
+        intent: decision.intent,
+        view: decision.view,
+        source: decision.source,
+        status: decision.status
+      });
+    } catch (error) {
+      const fallback = localAiDecision(query);
+      const fallbackResponse = `${fallback.response} The live AI endpoint was not available, so I used the local AI fallback.`;
+      appendConversationTurn({
+        id: Date.now(),
+        query,
+        response: fallbackResponse,
+        intent: fallback.intent,
+        view: fallback.view,
+        source: "local",
+        status: "fallback"
+      });
+    } finally {
+      setThinking(false);
+    }
+  });
+
+  quickButton.addEventListener("click", () => askInput.focus());
+
+  contentStage.innerHTML = renderWelcome();
+</script>
+</body>
+</html>
